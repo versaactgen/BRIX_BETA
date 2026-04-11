@@ -1,4 +1,14 @@
-from setuptools import setup, find_packages
+from pathlib import Path
+
+from setuptools import find_packages, setup
+
+
+ROOT = Path(__file__).parent
+REQUIREMENTS = [
+    line.strip()
+    for line in (ROOT / "requirements.txt").read_text().splitlines()
+    if line.strip() and not line.startswith("#")
+]
 
 setup(
     name="brix",
@@ -6,10 +16,6 @@ setup(
     description="A modular Reinforcement Learning framework.",
     author="Your Name",
     packages=find_packages(),
-    install_requires=[
-        "numpy",
-        "torch>=2.0.0",
-        "gymnasium>=0.28.1",
-    ],
-    python_requires=">=3.8",
+    install_requires=REQUIREMENTS,
+    python_requires=">=3.10",
 )

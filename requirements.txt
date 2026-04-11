@@ -1,0 +1,6 @@
+# Top-level runtime dependencies for BRIX.
+# setup.py reads this file so we only maintain one dependency list.
+numpy>=1.24
+torch>=2.7.0
+gymnasium>=0.28.1
+mujoco>=3.1.6
