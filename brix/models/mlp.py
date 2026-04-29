@@ -26,11 +26,21 @@ class PolicyValueMLP(nn.Module):
     A combined model mapping state to both an action distribution (policy) 
     and a state value estimate (value).
     """
-    def __init__(self, input_dim, action_dim, hidden_dims=(64, 64)):
+    def __init__(
+        self,
+        input_dim,
+        action_dim,
+        hidden_dims=(64, 64),
+        is_continuous: bool = False,
+        log_std_init: float = -0.5,
+    ):
         super().__init__()
+        self.is_continuous = is_continuous
         
         # Policy Network
         self.actor = MLPNetwork(input_dim, action_dim, hidden_dims)
+        if self.is_continuous:
+            self.log_std = nn.Parameter(torch.full((action_dim,), log_std_init))
         
         # Value Network
         self.critic = MLPNetwork(input_dim, 1, hidden_dims)

@@ -15,11 +15,12 @@ class RolloutBuffer:
         self.values = np.zeros(capacity, dtype=np.float32)
         self.log_probs = np.zeros(capacity, dtype=np.float32)
         self.dones = np.zeros(capacity, dtype=np.float32)
+        self.timesteps = np.zeros(capacity, dtype=np.int32)
         
         self.ptr = 0
         self.size = 0
 
-    def add(self, state, action, reward, value, log_prob, done):
+    def add(self, state, action, reward, value, log_prob, done, timestep):
         """Add a transition to the buffer."""
         if self.ptr >= self.capacity:
             raise RuntimeError("Buffer is full!")
@@ -30,6 +31,7 @@ class RolloutBuffer:
         self.values[self.ptr] = value
         self.log_probs[self.ptr] = log_prob
         self.dones[self.ptr] = done
+        self.timesteps[self.ptr] = timestep
         
         self.ptr += 1
         self.size = min(self.size + 1, self.capacity)
@@ -37,17 +39,19 @@ class RolloutBuffer:
     def get(self):
         """Retrieve collected trajectories and reset buffer."""
         assert self.ptr == self.capacity, "Buffer must be full before fetching"
+        size = self.size
         
         self.ptr = 0
         self.size = 0
         
         return dict(
-            states=torch.tensor(self.states),
-            actions=torch.tensor(self.actions),
-            rewards=torch.tensor(self.rewards),
-            values=torch.tensor(self.values),
-            log_probs=torch.tensor(self.log_probs),
-            dones=torch.tensor(self.dones)
+            states=torch.tensor(self.states[:size]),
+            actions=torch.tensor(self.actions[:size]),
+            rewards=torch.tensor(self.rewards[:size]),
+            values=torch.tensor(self.values[:size]),
+            log_probs=torch.tensor(self.log_probs[:size]),
+            dones=torch.tensor(self.dones[:size]),
+            timesteps=torch.tensor(self.timesteps[:size]),
         )
 
 

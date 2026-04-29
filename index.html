@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BRIX RL Framework</title>
+    <meta name="description" content="A modular, transparent, and scalable Reinforcement Learning framework.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-1: #3b82f6;
+            --accent-2: #8b5cf6;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Abstract Background */
+        .bg-glow {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 80vw;
+            background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(139,92,246,0.15) 40%, rgba(15,23,42,0) 70%);
+            z-index: -1;
+            filter: blur(80px);
+            animation: pulse 10s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            padding: 6rem 0 4rem;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--accent-1), var(--accent-2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -1px;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+            color: white;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 4rem 0;
+        }
+
+        .feature-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-card h3 {
+            color: var(--accent-1);
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        .code-section {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 4rem 0;
+        }
+
+        .code-section h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        pre {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #e2e8f0;
+        }
+
+        .keyword { color: #c678dd; }
+        .function { color: #61afef; }
+        .string { color: #98c379; }
+        .comment { color: #5c6370; font-style: italic; }
+
+        footer {
+            text-align: center;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--glass-border);
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+    <div class="container">
+        <header>
+            <h1>BRIX RL</h1>
+            <p class="subtitle">A modular, transparent, and scalable Reinforcement Learning framework designed with simplicity in mind.</p>
+            <a href="https://github.com/versaactgen/BRIX_BETA" class="btn">View on GitHub</a>
+        </header>
+
+        <section class="features">
+            <div class="feature-card">
+                <h3>⚡ Envs</h3>
+                <p>Environment settings, vectorized configurations, and gym wrappers to handle state and reward pipelines efficiently.</p>
+            </div>
+            <div class="feature-card">
+                <h3>🧠 Models</h3>
+                <p>Core neural network architectures including shared representation MLPs and decoupled Policy/Value networks.</p>
+            </div>
+            <div class="feature-card">
+                <h3>💾 Buffers</h3>
+                <p>Experience replay, rollout buffers, and trajectory management for off-policy and on-policy data collection.</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚙️ Algorithms</h3>
+                <p>Standardized algorithms like PPO inheriting from unified base classes for clean training and inference loops.</p>
+            </div>
+        </section>
+
+        <section class="code-section">
+            <h2>Quickstart</h2>
+            <p>Here's an abstracted example of how the framework components hook together:</p>
+            <pre><code><span class="keyword">import</span> gymnasium <span class="keyword">as</span> gym
+<span class="keyword">from</span> brix.envs.wrappers <span class="keyword">import</span> make_env
+<span class="keyword">from</span> brix.models.mlp <span class="keyword">import</span> PolicyValueMLP
+<span class="keyword">from</span> brix.buffers.replay_buffer <span class="keyword">import</span> RolloutBuffer
+<span class="keyword">from</span> brix.algorithms.base <span class="keyword">import</span> BaseAgent
+
+<span class="comment"># 1. Setup Environment</span>
+env = <span class="function">make_env</span>(<span class="string">"CartPole-v1"</span>)
+
+<span class="comment"># 2. Setup Neural Network Architecture</span>
+model = <span class="function">PolicyValueMLP</span>(
+    input_dim=env.observation_space.shape[0],
+    action_dim=env.action_space.n
+)
+
+<span class="comment"># 3. Setup Buffer for Experience Collection</span>
+buffer = <span class="function">RolloutBuffer</span>(capacity=2048, state_dim=env.observation_space.shape)
+
+<span class="comment"># 4. Initialize Algorithm</span>
+agent = <span class="function">BaseAgent</span>(env=env, model=model, buffer=buffer)
+
+<span class="comment"># 5. Train</span>
+<span class="keyword">for</span> epoch <span class="keyword">in</span> <span class="function">range</span>(100):
+    agent.<span class="function">train_step</span>()</code></pre>
+        </section>
+
+        <footer>
+            <p>MIT License &bull; Python 3.10+</p>
+        </footer>
+    </div>
+</body>
+</html>
