@@ -15,52 +15,68 @@ The framework is divided into several composable modules:
 - **`brix.algorithms`**: Standardized algorithms (e.g., PPO) inheriting from simple, unified base classes to provide clean training and inference loops.
 
 
+```text
 BRIX_BETA/
-├── README.md               # Main project documentation
-├── setup.py                # Package installation script
-├── brix/                   # The primary Python package
+├── README.md                # Main project documentation
+├── setup.py                 # Package installation script
+├── requirements.txt         # Top-level dependency list
+├── index.html               # Project homepage (GitHub Pages)
+├── brix/                    # The primary Python package
 │   ├── __init__.py
-│   ├── algorithms/         # Implementations of RL algorithms (e.g., PPO, DQN)
+│   ├── algorithms/          # Implementations of RL algorithms
 │   │   ├── __init__.py
-│   │   └── base.py
-│   ├── buffers/            # Experience storage (Replay Buffers, Rollout Buffers)
+│   │   ├── base.py          # Unified base class for all agents
+│   │   └── ppo_base.py      # Proximal Policy Optimization
+│   ├── buffers/             # Experience storage (Rollout / Replay)
 │   │   ├── __init__.py
 │   │   └── replay_buffer.py
-│   ├── envs/               # Environment setup, wrappers and vectorization
+│   ├── envs/                # Environment setup, wrappers & vectorization
 │   │   ├── __init__.py
 │   │   └── wrappers.py
-│   └── models/             # Neural network architectures (Policy MLPs, Value MLPs)
+│   └── models/              # Neural network architectures
 │       ├── __init__.py
-│       └── mlp.py
-└── tests/                  # Directory for unit testing framework components
+│       └── mlp.py           # Policy / Value MLP networks
+└── tests/                   # Unit tests
     └── __init__.py
+```
 
 
 ## Installation
 
-To use (or modify) the framework locally:
+### Prerequisites
+
+Install [**uv**](https://docs.astral.sh/uv/getting-started/installation/) (a fast Python package & environment manager):
 
 ```bash
-git clone https://github.com/yourusername/brix_rl.git
-cd brix_rl
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip setuptools wheel
-pip install -e .
+curl -LsSf https://astral.sh/uv/install.sh | sh    # Linux / macOS
 ```
 
-Top-level dependencies are tracked in `requirements.txt`, and `setup.py` installs from that file so the package metadata and the dependency list stay in sync.
+### Setup
+
+```bash
+git clone https://github.com/versaactgen/BRIX_BETA.git
+cd BRIX_BETA
+
+# Create & activate a uv virtual environment
+uv venv                     # creates .venv/ with the default Python (≥ 3.10)
+source .venv/bin/activate   # activate the environment
+
+# Install the package and all dependencies
+uv pip install -e .
+```
+
+Top-level dependencies are tracked in `requirements.txt`, and `setup.py` reads from that file so the package metadata and the dependency list stay in sync.
+
+### CUDA (optional)
 
 If you want NVIDIA GPU acceleration for PyTorch, replace the default `torch` wheel with the official CUDA wheel that matches your driver. For Linux, PyTorch's stable selector currently offers CUDA 11.8, 12.6, and 12.8 wheels.
 
-Example:
-
 ```bash
-pip uninstall -y torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
+uv pip uninstall torch torchvision torchaudio
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128
 ```
 
-Quick verification:
+### Quick verification
 
 ```bash
 python -c "import gymnasium as gym, mujoco, torch; print(torch.__version__, torch.cuda.is_available())"
@@ -73,36 +89,89 @@ env.close()
 PY
 ```
 
+---
+
 ## Quickstart
 
-Here's an abstracted example of how the framework components hook together:
+### Running PPO from the terminal
+
+The built-in PPO script is runnable directly as a module:
+
+```bash
+# Make sure the environment is activated
+source .venv/bin/activate
+
+# Run PPO on CartPole (discrete) with default hyperparameters
+python -m brix.algorithms.ppo_base
+
+# Run PPO on HalfCheetah (continuous) with custom hyperparameters
+python -m brix.algorithms.ppo_base \
+    --env-id HalfCheetah-v5 \
+    --gamma 0.99 \
+    --lam 0.95 \
+    --lr 3e-4 \
+    --batch-size 4096 \
+    --epochs 10
+```
+
+### Command-Line Arguments
+
+| Argument | Type | Default | Description |
+|---|---|---|---|
+| `--env-id` | `str` | `CartPole-v1` | Gymnasium environment ID (e.g. `HalfCheetah-v5`, `Ant-v5`) |
+| `--gamma` | `float` | `0.99` | Discount factor for future rewards |
+| `--lam` | `float` | `0.95` | Lambda for Generalized Advantage Estimation (GAE) |
+| `--lr` | `float` | `3e-4` | Learning rate for the Adam optimizer |
+| `--batch-size` | `int` | `2048` | Number of environment steps collected per rollout |
+| `--epochs` | `int` | `5` | Number of rollout → update cycles to execute |
+
+### Expected output
+
+```text
+Initializing PPO for CartPole-v1
+Hyperparameters: gamma=0.99, lam=0.95, lr=0.0003, batch_size=2048
+Starting training...
+Epoch 1/5: batch=2048, reward_mean=1.000, reward_sum=2048.000, dones=93, last_timestep=2047
+Epoch 2/5: batch=2048, reward_mean=1.000, reward_sum=2048.000, dones=87, last_timestep=2047
+...
+Training process finished.
+```
+
+### Using BRIX as a library
+
+You can also import and compose the modules programmatically:
 
 ```python
-import gymnasium as gym
 from brix.envs.wrappers import make_env
 from brix.models.mlp import PolicyValueMLP
 from brix.buffers.replay_buffer import RolloutBuffer
-from brix.algorithms.base import BaseAgent
+from brix.algorithms.ppo_base import PPO
 
 # 1. Setup Environment
 env = make_env("CartPole-v1")
 
-# 2. Setup Neural Network Architectures
+# 2. Setup Neural Network
 model = PolicyValueMLP(
     input_dim=env.observation_space.shape[0],
-    action_dim=env.action_space.n
+    action_dim=env.action_space.n,
 )
 
-# 3. Setup Buffer for Experience Collection
-buffer = RolloutBuffer(capacity=2048, state_dim=env.observation_space.shape, action_dim=env.action_space.shape)
+# 3. Setup Buffer
+buffer = RolloutBuffer(
+    capacity=2048,
+    state_dim=env.observation_space.shape,
+    action_dim=env.action_space.shape,
+)
 
-# 4. Initialize Algorithm
-agent = BaseAgent(env=env, model=model, buffer=buffer)
+# 4. Initialize & Train
+agent = PPO(env=env, model=model, buffer=buffer, gamma=0.99, lam=0.95)
 
-# 5. Train
-for epoch in range(100):
-    agent.train_step()
+for epoch in range(5):
+    metrics = agent.train_step()
+    print(f"Epoch {epoch+1}: reward_mean={metrics['reward_mean']:.3f}")
 ```
+
+---
 
 ## Contributing
 
